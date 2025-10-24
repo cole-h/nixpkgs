@@ -77,10 +77,16 @@
         # (Re)build the cache if the theme dir is writable, replacing any
         # existing cache for the theme
 
-        if [ -w "$themedir" ]; then
-          rm -f "$themedir"/icon-theme.cache
-          ${pkgs.buildPackages.gtk3.out}/bin/gtk-update-icon-cache --ignore-theme-index "$themedir"
-        fi
+        case "$(realpath "$themedir")" in
+            "$out"/*)
+                echo "rebuilding icon cache"
+                rm -f "$themedir"/icon-theme.cache
+                ${pkgs.buildPackages.gtk3.out}/bin/gtk-update-icon-cache --ignore-theme-index "$themedir"
+                ;;
+            *)
+                echo "not rebuilding icon cache, themedir is in another store path"
+                ;;
+        esac
       done
     '';
   };
